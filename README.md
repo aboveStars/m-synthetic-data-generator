@@ -11,29 +11,62 @@ A GDPR-compliant synthetic data generator that creates realistic, privacy-safe t
 - ⚡ **High Performance**: Generates 10,000+ records in seconds
 - 📤 **Multiple Formats**: Export to JSON or SQL INSERT statements
 
-## Installation
+## Prerequisites
+
+- **Node.js** 18.x or higher
+- **npm** 9.x or higher
+
+## Installation & Setup
+
+Follow these steps to get started:
 
 ```bash
+# 1. Install dependencies
 npm install
+
+# 2. Build the project
 npm run build
 ```
 
+> **Important**: You must run `npm install` and `npm run build` before using any CLI commands or running tests.
+
 ## Quick Start
+
+### Quick Test
+
+After installation, verify everything works by running:
+
+```bash
+# Quick test with dry-run (no files created)
+npm run generate -- --schema ./examples/schema.prisma --count 10 --dry-run
+
+# Generate actual data (creates test-data.json)
+npm run generate -- --schema ./examples/schema.prisma --count 100 --output ./test-data.json
+```
+
+**Or use the automated verification script:**
+
+```bash
+# Run comprehensive test suite
+./verify.sh
+```
+
+This script automatically tests all features including dependencies, build, tests, and data generation.
 
 ### CLI Usage
 
 ```bash
 # Basic usage with Prisma schema
-npm run generate -- --schema ./prisma/schema.prisma --count 1000
+npm run generate -- --schema ./examples/schema.prisma --count 1000
 
 # With configuration file
-npm run generate -- --config ./config.json
+npm run generate -- --config ./examples/config.json
 
 # Output as SQL
-npm run generate -- --schema ./schema.prisma --format sql --output ./seed.sql
+npm run generate -- --schema ./examples/schema.prisma --format sql --output ./seed.sql
 
 # Dry run to preview
-npm run generate -- --schema ./schema.prisma --count 100 --dry-run
+npm run generate -- --schema ./examples/schema.prisma --count 100 --dry-run
 ```
 
 ### Programmatic Usage
@@ -72,7 +105,9 @@ console.log(`Generated ${result.stats.totalRecords} records`);
 
 ## Configuration
 
-Create a `config.json` file:
+You can use a configuration file for advanced options. An example is provided at `./examples/config.json`:
+
+**Example config.json:**
 
 ```json
 {
@@ -219,14 +254,19 @@ COMMIT;
 
 ```bash
 # Run all tests
+npm test -- --run
+
+# Run tests in watch mode
 npm test
 
 # Run specific test file
-npm test -- parser
+npm test -- --run parser
 
 # Run with coverage
-npm test -- --coverage
+npm test -- --run --coverage
 ```
+
+> **Note**: The `--run` flag runs tests once and exits. Without it, tests run in watch mode.
 
 ## Performance
 
@@ -243,6 +283,54 @@ npm test -- --coverage
 - ✅ No production data or real PII is used
 - ✅ Configurable synthetic markers
 - ✅ Suitable for GDPR/CCPA compliance
+
+## Troubleshooting
+
+### Command not found errors
+
+**Problem**: `sh: tsup: command not found` or similar errors
+
+**Solution**: Make sure you've installed dependencies and built the project:
+```bash
+npm install
+npm run build
+```
+
+### "Cannot find module" errors
+
+**Problem**: Module import errors when running commands
+
+**Solution**: Rebuild the project:
+```bash
+npm run build
+```
+
+### Schema file not found
+
+**Problem**: `Error: ENOENT: no such file or directory`
+
+**Solution**: Ensure the schema path is correct. The example schema is located at:
+```bash
+./examples/schema.prisma
+```
+
+### Tests fail or don't run
+
+**Problem**: Tests don't execute or fail unexpectedly
+
+**Solution**: 
+1. Ensure dependencies are installed: `npm install`
+2. Build the project: `npm run build`
+3. Run tests with proper flags: `npm test -- --run`
+
+### Permission denied errors
+
+**Problem**: `EACCES: permission denied`
+
+**Solution**: Ensure you have write permissions to the output directory or specify a different output path:
+```bash
+npm run generate -- --schema ./examples/schema.prisma --output ~/Desktop/data.json
+```
 
 ## License
 

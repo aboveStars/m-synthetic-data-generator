@@ -43,3 +43,12 @@ pids/
 *.pid
 *.seed
 *.pid.lock
+
+# Generated test data (from README examples)
+test-data.json
+test-output.json
+test-seed.sql
+config-output.json
+verify-test.json
+verify-test.sql
+output/
