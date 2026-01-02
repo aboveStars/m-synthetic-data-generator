@@ -1,0 +1,120 @@
+// Example Prisma schema for testing the Synthetic Data Generator
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum SubscriptionTier {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  phone         String?
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false)
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  orders        Order[]
+  subscription  Subscription?
+  profile       Profile?
+  referredBy    User?     @relation("UserReferrals", fields: [referredById], references: [id])
+  referredById  String?
+  referrals     User[]    @relation("UserReferrals")
+}
+
+model Profile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  bio         String?
+  website     String?
+  address     String?
+  city        String?
+  country     String?
+  birthDate   DateTime?
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  status      OrderStatus @default(PENDING)
+  total       Float
+  items       Json
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id            String            @id @default(uuid())
+  userId        String            @unique
+  tier          SubscriptionTier  @default(FREE)
+  price         Float             @default(0)
+  isActive      Boolean           @default(true)
+  startDate     DateTime          @default(now())
+  endDate       DateTime?
+  metadata      Json?
+
+  // Relations
+  user          User              @relation(fields: [userId], references: [id])
+}
+
+model Organization {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  logoUrl     String?
+  settings    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  members     OrgMember[]
+}
+
+model OrgMember {
+  id              String        @id @default(uuid())
+  organizationId  String
+  userId          String
+  role            String        @default("member")
+  joinedAt        DateTime      @default(now())
+
+  // Relations
+  organization    Organization  @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, userId])
+}

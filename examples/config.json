@@ -1,0 +1,57 @@
+{
+  "schema": "./examples/schema.prisma",
+  "output": {
+    "format": "both",
+    "path": "./output/synthetic-data.json",
+    "prettyPrint": true,
+    "includeStats": true
+  },
+  "counts": {
+    "User": 1000,
+    "Organization": 50
+  },
+  "distributions": {
+    "Order": {
+      "perParent": {
+        "values": [1, 2, 3, 5, 10, 15],
+        "weights": [0.30, 0.30, 0.20, 0.10, 0.07, 0.03]
+      }
+    },
+    "OrgMember": {
+      "perParent": {
+        "values": [5, 10, 20, 50],
+        "weights": [0.40, 0.35, 0.20, 0.05]
+      }
+    }
+  },
+  "dateRanges": {
+    "User.createdAt": {
+      "from": "2023-01-01",
+      "to": "2024-12-31",
+      "distribution": "recent-biased"
+    },
+    "Order.createdAt": {
+      "from": "2023-06-01",
+      "to": "2024-12-31",
+      "distribution": "recent-biased"
+    }
+  },
+  "fieldOverrides": {
+    "User": {
+      "role": {
+        "weights": [0.05, 0.90, 0.05]
+      }
+    },
+    "Subscription": {
+      "tier": {
+        "weights": [0.50, 0.30, 0.15, 0.05]
+      }
+    }
+  },
+  "privacy": {
+    "piiFieldPatterns": ["email", "phone", "address", "ssn", "password"],
+    "syntheticSuffix": "_test",
+    "clearlyFake": true,
+    "emailDomain": "synthetic-test.example.com"
+  }
+}
