@@ -44,15 +44,6 @@ npm run generate -- --schema ./examples/schema.prisma --count 10 --dry-run
 npm run generate -- --schema ./examples/schema.prisma --count 100 --output ./test-data.json
 ```
 
-**Or use the automated verification script:**
-
-```bash
-# Run comprehensive test suite
-./verify.sh
-```
-
-This script automatically tests all features including dependencies, build, tests, and data generation.
-
 ### CLI Usage
 
 ```bash
@@ -258,14 +249,6 @@ COMMIT;
 # Run all tests
 npm test -- --run
 
-# Run tests in watch mode
-npm test
-
-# Run specific test file
-npm test -- --run parser
-
-# Run with coverage
-npm test -- --run --coverage
 ```
 
 > **Note**: The `--run` flag runs tests once and exits. Without it, tests run in watch mode.
