@@ -4,39 +4,43 @@
  * CLI for Synthetic Data Generator
  */
 
-import { Command } from 'commander';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { resolve } from 'path';
+import { Command } from "commander";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { resolve } from "path";
 
-import { parsePrismaSchema } from './parser/index.js';
-import { Orchestrator } from './engine/index.js';
-import { JsonExporter, SqlExporter } from './exporters/index.js';
-import { loadConfig, createConfigFromOptions, DEFAULT_CONFIG } from './config/index.js';
-import type { GenerationConfig } from './types.js';
+import { createConfigFromOptions, loadConfig } from "./config/index.js";
+import { Orchestrator } from "./engine/index.js";
+import { JsonExporter, SqlExporter } from "./exporters/index.js";
+import { parsePrismaSchema } from "./parser/index.js";
+import type { GenerationConfig } from "./types.js";
 
 const program = new Command();
 
 program
-  .name('synthetic-data-gen')
-  .description('Generate GDPR-compliant synthetic data from database schemas')
-  .version('1.0.0');
+  .name("synthetic-data-gen")
+  .description("Generate GDPR-compliant synthetic data from database schemas")
+  .version("1.0.0");
 
 program
-  .option('-s, --schema <path>', 'Path to Prisma schema file')
-  .option('-c, --config <path>', 'Path to configuration file')
-  .option('-o, --output <path>', 'Output file path', './synthetic-data.json')
-  .option('-f, --format <format>', 'Output format (json, sql, both)', 'json')
-  .option('-n, --count <number>', 'Default record count per model', parseInt)
-  .option('--seed <number>', 'Random seed for reproducible generation', parseInt)
-  .option('--dry-run', 'Show what would be generated without writing files')
-  .option('-v, --verbose', 'Show detailed output');
+  .option("-s, --schema <path>", "Path to Prisma schema file")
+  .option("-c, --config <path>", "Path to configuration file")
+  .option("-o, --output <path>", "Output file path", "./synthetic-data.json")
+  .option("-f, --format <format>", "Output format (json, sql, both)", "json")
+  .option("-n, --count <number>", "Default record count per model", parseInt)
+  .option(
+    "--seed <number>",
+    "Random seed for reproducible generation",
+    parseInt
+  )
+  .option("--dry-run", "Show what would be generated without writing files")
+  .option("-v, --verbose", "Show detailed output");
 
 program.parse();
 
 const options = program.opts();
 
 async function main() {
-  console.log('🧪 Synthetic Data Generator\n');
+  console.log("🧪 Synthetic Data Generator\n");
 
   try {
     // Load configuration
@@ -59,7 +63,7 @@ async function main() {
         seed: options.seed,
       });
     } else {
-      console.error('❌ Error: Either --schema or --config is required');
+      console.error("❌ Error: Either --schema or --config is required");
       process.exit(1);
     }
 
@@ -71,10 +75,10 @@ async function main() {
     }
 
     console.log(`📖 Reading schema from ${schemaPath}`);
-    const schemaContent = readFileSync(schemaPath, 'utf-8');
+    const schemaContent = readFileSync(schemaPath, "utf-8");
 
     // Parse schema
-    console.log('🔍 Parsing schema...');
+    console.log("🔍 Parsing schema...");
     const parsedSchema = parsePrismaSchema(schemaContent);
 
     console.log(`   Found ${parsedSchema.models.length} models:`);
@@ -85,7 +89,7 @@ async function main() {
     if (parsedSchema.enums.length > 0) {
       console.log(`   Found ${parsedSchema.enums.length} enums:`);
       for (const enumDef of parsedSchema.enums) {
-        console.log(`   - ${enumDef.name}: [${enumDef.values.join(', ')}]`);
+        console.log(`   - ${enumDef.name}: [${enumDef.values.join(", ")}]`);
       }
     }
 
@@ -99,7 +103,7 @@ async function main() {
     }
 
     // Generate data
-    console.log('\n⚙️ Generating synthetic data...');
+    console.log("\n⚙️ Generating synthetic data...");
     const startTime = Date.now();
 
     const orchestrator = new Orchestrator(parsedSchema, config);
@@ -108,19 +112,23 @@ async function main() {
     const duration = Date.now() - startTime;
 
     // Display stats
-    console.log('\n📊 Generation Stats:');
+    console.log("\n📊 Generation Stats:");
     console.log(`   Total records: ${stats.totalRecords.toLocaleString()}`);
     console.log(`   Generation time: ${duration}ms`);
-    console.log(`   Referential integrity: ${stats.referentialIntegrity === 'valid' ? '✅ Valid' : '❌ Invalid'}`);
+    console.log(
+      `   Referential integrity: ${
+        stats.referentialIntegrity === "valid" ? "✅ Valid" : "❌ Invalid"
+      }`
+    );
 
-    console.log('\n   Records per model:');
+    console.log("\n   Records per model:");
     for (const [model, count] of Object.entries(stats.recordsPerModel)) {
       console.log(`   - ${model}: ${count.toLocaleString()}`);
     }
 
     if (options.dryRun) {
-      console.log('\n🔍 Dry run - no files written');
-      console.log('\nSample data:');
+      console.log("\n🔍 Dry run - no files written");
+      console.log("\nSample data:");
 
       const jsonExporter = new JsonExporter({ prettyPrint: true });
       const sample = jsonExporter.exportObject(data, stats);
@@ -135,46 +143,50 @@ async function main() {
     }
 
     // Export data
-    console.log('\n💾 Exporting data...');
+    console.log("\n💾 Exporting data...");
 
     const format = config.output.format;
     const outputPath = resolve(config.output.path);
 
-    if (format === 'json' || format === 'both') {
+    if (format === "json" || format === "both") {
       const jsonExporter = new JsonExporter({
         prettyPrint: config.output.prettyPrint,
         includeStats: config.output.includeStats,
       });
 
-      const jsonPath = format === 'both'
-        ? outputPath.replace(/\.[^.]+$/, '.json')
-        : outputPath;
+      const jsonPath =
+        format === "both"
+          ? outputPath.replace(/\.[^.]+$/, ".json")
+          : outputPath;
 
       const jsonOutput = jsonExporter.export(data, stats);
-      writeFileSync(jsonPath, jsonOutput, 'utf-8');
+      writeFileSync(jsonPath, jsonOutput, "utf-8");
       console.log(`   ✅ JSON written to ${jsonPath}`);
     }
 
-    if (format === 'sql' || format === 'both') {
+    if (format === "sql" || format === "both") {
       const sqlExporter = new SqlExporter({
-        dialect: 'postgresql',
+        dialect: "postgresql",
         includeTransaction: true,
       });
       sqlExporter.setSchema(parsedSchema);
 
-      const sqlPath = format === 'both'
-        ? outputPath.replace(/\.[^.]+$/, '.sql')
-        : outputPath.replace('.json', '.sql');
+      const sqlPath =
+        format === "both"
+          ? outputPath.replace(/\.[^.]+$/, ".sql")
+          : outputPath.replace(".json", ".sql");
 
       const sqlOutput = sqlExporter.export(data);
-      writeFileSync(sqlPath, sqlOutput, 'utf-8');
+      writeFileSync(sqlPath, sqlOutput, "utf-8");
       console.log(`   ✅ SQL written to ${sqlPath}`);
     }
 
-    console.log('\n✨ Done!');
-
+    console.log("\n✨ Done!");
   } catch (error) {
-    console.error('\n❌ Error:', error instanceof Error ? error.message : error);
+    console.error(
+      "\n❌ Error:",
+      error instanceof Error ? error.message : error
+    );
     if (options.verbose && error instanceof Error) {
       console.error(error.stack);
     }

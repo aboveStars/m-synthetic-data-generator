@@ -12,31 +12,23 @@
  * - Realism: Pass manual inspection (looks like real data)
  */
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from "fs";
-import { join, dirname } from "path";
+import { existsSync, rmSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
-  parsePrismaSchema,
-  generateSyntheticData,
-  Orchestrator,
-  DataStore,
-  DependencyGraph,
-  JsonExporter,
-  SqlExporter,
-  StringGenerator,
-  IntGenerator,
-  FloatGenerator,
-  DateTimeGenerator,
   BooleanGenerator,
-  JsonGenerator,
-  EnumGenerator,
+  DataStore,
+  DateTimeGenerator,
+  DependencyGraph,
+  FloatGenerator,
+  generateSyntheticData,
   GeneratorRegistry,
-  type ParsedSchema,
-  type GenerationConfig,
-  type GeneratedRecord,
-  type GenerationStats,
+  IntGenerator,
+  JsonGenerator,
+  parsePrismaSchema,
+  StringGenerator,
 } from "../src/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
